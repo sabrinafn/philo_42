@@ -89,8 +89,53 @@ int	is_valid_input(char **args)
 	return (1);
 }
 
+void	store_philo(t_philo **philos_struct, char *philos_str)
+{
+	int	philos_amount;
+	int	i;
+	t_philo	*new_philo;
+	t_philo	*last_philo;
+
+	i = 0;
+	philos_amount = ft_atoi(philos_str);
+	printf("philos amount atoi = |%d|\n", philos_amount);
+	new_philo = NULL;
+	last_philo = *philos_struct;
+	while (i < philos_amount)
+	{
+		new_philo = malloc(sizeof(t_philo *));
+		new_philo -> philo = i + 1;
+		new_philo -> next = NULL;
+		if (*philos_struct == NULL)
+			*philos_struct = new_philo;
+		else
+		{
+			last_philo = *philos_struct;
+			while (last_philo->next)
+				last_philo = last_philo -> next;
+			last_philo -> next = new_philo;
+		}
+		i++;
+	}
+}
+
+void	print_test(t_philo **philo_struct)
+{
+	t_philo	*philos;
+
+	philos = *philo_struct;
+	while (philos)
+	{
+		printf("Philosopher %d created.\n", philos->philo);
+		philos = philos->next;
+	}			
+}
+
 int	main(int ac, char **av)
 {
+	t_philo	*philo_struct;
+
+	philo_struct = NULL;
 	if (ac != 5 && ac != 6)
 	{
 		printf("PROGRAM USE: [number_of_philosophers] [time_to_die] [time_to_eat] [time_to_sleep] [number_of_times_each_philosopher_must_eat](optional)\n");
@@ -101,5 +146,7 @@ int	main(int ac, char **av)
 	else if (!is_valid_input(av))
 		printf("INCORRECT ARGS\n");
 
+	store_philo(&philo_struct, av[1]);
+	print_test(&philo_struct);
 	return (0);
 }
