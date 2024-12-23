@@ -77,15 +77,9 @@ int	is_positive(char **args)
 int	is_valid_input(char **args)
 {
 	if (!is_integer(args))
-	{
-		printf("!is_integer\n");
 		return (0);
-	}
 	if (!is_positive(args))
-	{
-		printf("!is_positive\n");
 		return (0);
-	}
 	return (1);
 }
 
@@ -98,7 +92,6 @@ void	store_philo(t_philo **philos_struct, char *philos_str)
 
 	i = 0;
 	philos_amount = ft_atoi(philos_str);
-	printf("philos amount atoi = |%d|\n", philos_amount);
 	new_philo = NULL;
 	last_philo = *philos_struct;
 	while (i < philos_amount)
@@ -141,12 +134,12 @@ int	main(int ac, char **av)
 		printf("PROGRAM USE: [number_of_philosophers] [time_to_die] [time_to_eat] [time_to_sleep] [number_of_times_each_philosopher_must_eat](optional)\n");
 		return (0);
 	}
-	if (is_valid_input(av))
-		printf("CORRECT ARGS\n");
-	else if (!is_valid_input(av))
+	if (!is_valid_input(av))
+	{
 		printf("INCORRECT ARGS\n");
-
+		return (0);
+	}
 	store_philo(&philo_struct, av[1]);
-	print_test(&philo_struct);
+	//print_test(&philo_struct);
 	return (0);
 }
