@@ -11,7 +11,7 @@ OFILES := $(CFILES:.c=.o)
 %.o: %.c
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(NAME): $(OFILE)
+$(NAME): $(OFILES)
 	$(CC) $(FLAGS) $^ -o $(NAME)
 
 all: $(NAME)
