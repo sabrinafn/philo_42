@@ -124,9 +124,21 @@ void	print_test(t_philo **philo_struct)
 	}			
 }
 
+void	*philo_routine(void *arg)
+{
+	int	philo_id;
+
+	philo_id = *(int *)arg;
+	printf("Philo [id: %d] found.\n", philo_id);
+	usleep(1000000);
+	printf("Philo [id: %d] waited and now is over.\n", philo_id);
+	return (NULL);
+}
+
 int	main(int ac, char **av)
 {
 	t_philo	*philo_struct;
+	pthread_t philo_thread[ac - 1];
 
 	philo_struct = NULL;
 	if (ac != 5 && ac != 6)
@@ -141,5 +153,17 @@ int	main(int ac, char **av)
 	}
 	store_philo(&philo_struct, av[1]);
 	//print_test(&philo_struct);
+	int i = 0;
+	while (i < ac - 1)
+	{
+		pthread_create(&philo_thread[i], NULL, philo_routine, &i);
+		i++;
+	}
+	i = 0;
+	while (i < ac - 1)
+	{
+		pthread_join(philo_thread[i], NULL);
+		i++;
+	}
 	return (0);
 }
