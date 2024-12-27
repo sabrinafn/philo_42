@@ -137,6 +137,7 @@ void	*philo_routine(void *arg)
 
 int	main(int ac, char **av)
 {
+	pthread_mutex_t	lock;
 	t_philo	*philo_struct;
 	pthread_t philo_thread[ac - 1];
 
@@ -156,7 +157,9 @@ int	main(int ac, char **av)
 	int i = 0;
 	while (i < ac - 1)
 	{
+		pthread_mutex_lock(&lock);
 		pthread_create(&philo_thread[i], NULL, philo_routine, &i);
+		pthread_mutex_unlock(&lock);
 		i++;
 	}
 	i = 0;
