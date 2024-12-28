@@ -4,7 +4,7 @@ CC := gcc
 
 FLAGS := -pthread -Wall -Wextra -Werror
 
-CFILES := main.c
+CFILES := main.c validate_input.c philo_struct.c
 
 OFILES := $(CFILES:.c=.o)
 
