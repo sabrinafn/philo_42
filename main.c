@@ -1,35 +1,32 @@
 #include "philo.h"
 
-long get_time_ms(void)
+t_table	**static_args_struct(void)
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	// get millisecond converting seconds to milliseconds
-	long sec_to_milli = tv.tv_sec * 1000;
-	// get millisecond converting microseconds to milliseconds
-	long micro_to_milli = tv.tv_usec / 1000;
-
-	// sum both to get total of milliseconds
-	long total = sec_to_milli + micro_to_milli;
-	return (total);
+	static t_table *args_struct;
+	
+	return (&args_struct);
 }
 
-void	*philo_routine(void *arg)
+t_philo	**static_philo_struct(void)
 {
-	t_table	*args_struct;
-	long start_time = get_time_ms();
-	int	philo_id;
-	args_struct = *static_args();
-	pthread_mutex_lock(&args_struct->left_fork);
-	pthread_mutex_lock(&args_struct->right_fork);
+	static t_philo *philos_struct;
+	
+	return (&philos_struct);
+}
 
-	philo_id = *(int *)arg;
-	printf("%ldms [Philo id: %d] found.\n", get_time_ms() - start_time, philo_id);
-	usleep(10000);
-	printf("%ldms [Philo id: %d] waited and now is over.\n", get_time_ms() - start_time, philo_id);
-	pthread_mutex_unlock(&args_struct->left_fork);
-	pthread_mutex_unlock(&args_struct->right_fork);
-	return (NULL);
+pthread_mutex_t	*init_forks(int num)
+{
+	int		i;
+	pthread_mutex_t *forks;
+
+	i = 0;
+	forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
+	while (i < num)
+	{
+		pthread_mutex_init(&forks[i], NULL);
+		i++;
+	}
+	return (forks);
 }
 
 t_table	*init_table(int ac, char **av)
@@ -42,64 +39,86 @@ t_table	*init_table(int ac, char **av)
 		printf("malloc error args_struct\n");
 		return (NULL);
 	}
-	args_struct->philos = (ft_atoi)av[1];
-	args_struct->time_to_die = (ft_atoi)av[2];
-	args_struct->time_to_eat = (ft_atoi)av[3];
-	args_struct->time_to_sleep = (ft_atoi)av[4];
-	args_struct->left_fork = (ft_atoi)av[1];
-	args_struct->right_fork = (ft_atoi)av[1];
+	args_struct->num_philos = ft_atoi(av[1]);
+	args_struct->time_to_die = ft_atoi(av[2]);
+	args_struct->time_to_eat = ft_atoi(av[3]);
+	args_struct->time_to_sleep = ft_atoi(av[4]);
+	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
+	args_struct->forks = init_forks(ft_atoi(av[1]));
 	if (ac == 6)
-		args_struct->num_times_to_eat = (ft_atoi)av[5];
+		args_struct->max_times_to_eat = ft_atoi(av[5]);
 	else
-		args_struct->num_times_to_eat = -1;
-
-	pthread_mutex_init(&left_fork, NULL);
-	pthread_mutex_init(&right_fork, NULL);
+		args_struct->max_times_to_eat = -1;
 	return (args_struct);
 }
 
-t_table	**static_args_struct(void)
+t_philo	*init_philos(int num_philos)
 {
-	static t_table *args_struct;
+	int	i;
+	t_philo	*philos;
+	t_table	*args_struct;
 	
-	return (&args_struct);
+	i = 0;
+	philos = malloc(sizeof(t_philo) * num_philos);
+	args_struct = *static_args_struct();
+
+	while (i < num_philos)
+	{
+		philos[i].philo_id = i;
+		philos[i].left_fork = &args_struct->forks[i];
+		philos[i].right_fork = &args_struct->forks[(i + 1) % num_philos];
+		philos[i].table = args_struct;
+		i++;
+	}
+	return (philos);
 }
+
+void	init_args_struct(int ac, char **av)
+{
+	t_table		*args_struct;
+
+	args_struct = init_table(ac, av);
+	*static_args_struct() = args_struct;
+}
+
+void	init_philos_struct(char **av)
+{
+	int		num_philo;
+	t_philo		*philos_struct;
+
+	num_philo = ft_atoi(av[1]);
+	philos_struct = init_philos(num_philo);
+	*static_philo_struct() = philos_struct;
+}
+
+int	error_program_use(void)
+{
+	printf("PROGRAM USE: [number_of_philosophers] ");
+	printf("[time_to_die] [time_to_eat] [time_to_sleep] ");
+	printf("[number_of_times_each_philosopher_must_eat]");
+	printf("(optional)\n");
+	return (0);
+}
+
+void	philo_routine(void *arg)
+{
+
+	(void)arg;
+	int	i = 0;
+	printf("value of i = [%d]\n", i);
+}
+
+// need to create a routine
 
 int	main(int ac, char **av)
 {
-	t_table		*args_struct;
-	//t_philo	*philo_struct;
-	pthread_t philo_thread[6];
-	int	philo_ids[6];
-	//philo_struct = NULL;
 	if (ac != 5 && ac != 6)
-	{
-		printf("PROGRAM USE: [number_of_philosophers] [time_to_die] [time_to_eat] [time_to_sleep] [number_of_times_each_philosopher_must_eat](optional)\n");
-		return (0);
-	}
+		return (error_program_use());
 	if (!is_valid_input(av))
-	{
-		printf("INCORRECT ARGS\n");
-		return (0);
-	}
-	args_struct = init_table(ac, av);
-	*static_args_struct() = args_struct;
-	//store_philo(&philo_struct, av[1]);
-	//print_test(&philo_struct);
-	int i = 0;
-	while (i < 6)
-	{
-		philo_ids[i] = i;
-		pthread_create(&philo_thread[i], NULL, philo_routine, &philo_ids[i]);
-		i++;
-	}
-	i = 0;
-	while (i < 6)
-	{
-		pthread_join(philo_thread[i], NULL);
-		i++;
-	}
-	pthread_mutex_destroy(&args_struct->left_fork);
-	pthread_mutex_destroy(&args_struct->right_fork);
+		return (error_program_use());
+	init_args_struct(ac, av);
+	init_philos_struct(av);
+	
+//	create_philo_threads();
 	return (0);
 }

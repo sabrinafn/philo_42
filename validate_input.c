@@ -74,11 +74,23 @@ int	is_positive(char **args)
 	return (1);
 }
 
+int	min_philo_quantity(char *philos)
+{
+	int	philo_i;
+
+	philo_i = ft_atoi(philos);
+	if (philo_i >= 1)
+		return (1);
+	return (0);
+}
+
 int	is_valid_input(char **args)
 {
 	if (!is_integer(args))
 		return (0);
 	if (!is_positive(args))
+		return (0);
+	if (!min_philo_quantity(args[1]))
 		return (0);
 	return (1);
 }

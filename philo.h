@@ -9,19 +9,22 @@
 
 typedef struct s_philo
 {
-	int		philo;
-	struct s_philo	*next;
+	int		philo_id;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	struct s_table	*table;
 }			t_philo;
 
 typedef struct s_table
 {
-	int		philos;
+	int		num_philos;
 	int		time_to_die;
 	int		time_to_eat;
 	int		time_to_sleep;
-	int		num_times_to_eat;
-	pthread_mutex_t	left_fork;
-	pthread_mutex_t	right_fork;
+	int		max_times_to_eat;
+	pthread_t	*threads;
+	pthread_mutex_t	*forks;
+	struct s_philo	*philos;
 }			t_table;
 
 int     is_valid_input(char **args);
