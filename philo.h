@@ -13,6 +13,17 @@ typedef struct s_philo
 	struct s_philo	*next;
 }			t_philo;
 
+typedef struct s_table
+{
+	int		philos;
+	int		time_to_die;
+	int		time_to_eat;
+	int		time_to_sleep;
+	int		num_times_to_eat;
+	pthread_mutex_t	left_fork;
+	pthread_mutex_t	right_fork;
+}			t_table;
+
 int     is_valid_input(char **args);
 int     ft_isdigit(int c);
 int     ft_atoi(const char *str);
