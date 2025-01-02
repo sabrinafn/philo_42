@@ -119,6 +119,5 @@ int	main(int ac, char **av)
 	init_args_struct(ac, av);
 	init_philos_struct(av);
 	
-//	create_philo_threads();
 	return (0);
 }
