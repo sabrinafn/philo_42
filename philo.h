@@ -1,39 +1,58 @@
-#ifndef PHILO_H
-#define PHILO_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/07 15:01:26 by sabrifer          #+#    #+#             */
+/*   Updated: 2025/01/07 15:01:28 by sabrifer         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <sys/time.h>
+#ifndef PHILO_H
+# define PHILO_H
+
+# include <pthread.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <sys/time.h>
+# include <unistd.h>
 
 typedef struct s_philo
 {
-	int		philo_id;
+	int				philo_id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	struct s_table	*table;
-}			t_philo;
+}					t_philo;
 
 typedef struct s_table
 {
-	int		num_philos;
-	int		time_to_die;
-	int		time_to_eat;
-	int		time_to_sleep;
-	int		max_times_to_eat;
-	pthread_t	*threads;
+	int				num_philos;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				max_times_to_eat;
+	pthread_t		*threads;
 	pthread_mutex_t	*forks;
+	pthread_mutex_t	mutex_printf;
 	struct s_philo	*philos;
-}			t_table;
+}					t_table;
 
-int     is_valid_input(char **args);
-int     ft_isdigit(int c);
-int     ft_atoi(const char *str);
-int     is_integer(char **args);
-int     is_positive(char **args);
+int					is_valid_input(char **args);
+int					ft_isdigit(int c);
+int					ft_atoi(const char *str);
+int					is_integer(char **args);
+int					is_positive(char **args);
 
-// philo struct functions:
-void    print_test(t_philo **philo_struct);
-void    store_philo(t_philo **philos_struct, char *philos_str);
+// init_philo_structs.c
+t_table				**static_args_struct(void);
+t_philo				**static_philo_struct(void);
+pthread_mutex_t		*init_forks(int num);
+t_table				*init_table(int ac, char **av);
+t_philo				*init_philos(int num_philos);
+void				init_args_struct(int ac, char **av);
+void				init_philos_struct(char **av);
+
 #endif
