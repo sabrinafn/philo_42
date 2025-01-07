@@ -1,23 +1,28 @@
 #include "philo.h"
 
+// static function to handle table struct (just in case i need it).
 t_table	**static_args_struct(void)
 {
-	static t_table *args_struct;
-	
+	static t_table	*args_struct;
+
 	return (&args_struct);
 }
 
+// static function to handle philos struct (just in case i need it).
 t_philo	**static_philo_struct(void)
 {
-	static t_philo *philos_struct;
-	
+	static t_philo	*philos_struct;
+
 	return (&philos_struct);
 }
 
+// function to malloc forks.
+// it needs to allocate memory so it can be a variable that can
+// be used by all threads
 pthread_mutex_t	*init_forks(int num)
 {
-	int		i;
-	pthread_mutex_t *forks;
+	int				i;
+	pthread_mutex_t	*forks;
 
 	i = 0;
 	forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
@@ -29,6 +34,8 @@ pthread_mutex_t	*init_forks(int num)
 	return (forks);
 }
 
+// function to initialise structure of arguments received from the command line
+// it also initialises threads and forks in the same structure
 t_table	*init_table(int ac, char **av)
 {
 	t_table	*args_struct;
@@ -43,29 +50,35 @@ t_table	*init_table(int ac, char **av)
 	args_struct->time_to_die = ft_atoi(av[2]);
 	args_struct->time_to_eat = ft_atoi(av[3]);
 	args_struct->time_to_sleep = ft_atoi(av[4]);
+	// init threads and forks based on number of philos
 	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	args_struct->forks = init_forks(ft_atoi(av[1]));
+	// if there's an extra arguments, then it is the number
+	// of times each philo must eat
 	if (ac == 6)
 		args_struct->max_times_to_eat = ft_atoi(av[5]);
 	else
-		args_struct->max_times_to_eat = -1;
+		args_struct->max_times_to_eat = -1; // idk?
 	return (args_struct);
 }
 
 t_philo	*init_philos(int num_philos)
 {
-	int	i;
+	int		i;
 	t_philo	*philos;
 	t_table	*args_struct;
-	
+
 	i = 0;
 	philos = malloc(sizeof(t_philo) * num_philos);
 	args_struct = *static_args_struct();
-
 	while (i < num_philos)
 	{
 		philos[i].philo_id = i;
+		// reference the forks malloced in table structure
+		// select which forks belong to each philo
 		philos[i].left_fork = &args_struct->forks[i];
+		// (i + 1) % num_philos, it will give the value to wrap around
+		// number of philos
 		philos[i].right_fork = &args_struct->forks[(i + 1) % num_philos];
 		philos[i].table = args_struct;
 		i++;
@@ -75,16 +88,17 @@ t_philo	*init_philos(int num_philos)
 
 void	init_args_struct(int ac, char **av)
 {
-	t_table		*args_struct;
-
+	t_table *args_struct; // declaring table struct
 	args_struct = init_table(ac, av);
+	// initializing structure with arguments
 	*static_args_struct() = args_struct;
+	// store structure in static function :)
 }
 
 void	init_philos_struct(char **av)
 {
 	int		num_philo;
-	t_philo		*philos_struct;
+	t_philo	*philos_struct; // declaring philo struct
 
 	num_philo = ft_atoi(av[1]);
 	philos_struct = init_philos(num_philo);
@@ -102,9 +116,10 @@ int	error_program_use(void)
 
 void	philo_routine(void *arg)
 {
+	int	i;
 
 	(void)arg;
-	int	i = 0;
+	i = 0;
 	printf("value of i = [%d]\n", i);
 }
 
@@ -118,6 +133,5 @@ int	main(int ac, char **av)
 		return (error_program_use());
 	init_args_struct(ac, av);
 	init_philos_struct(av);
-	
 	return (0);
 }
