@@ -16,12 +16,20 @@ int		error_program_use(void);
 
 void	*meal_routine(void *var)
 {
-	t_philo	*philo;
+	t_philo		*philo;
+	long int	start_time;
+	long int	current_time;
 
 	philo = (t_philo *)var;
-
+	start_time = philo->table->start_time;
+	current_time = timestamp_in_ms() - start_time;
+	//printf("start time in milliseconds: [%ld]\n", start_time);
+	//usleep(5000);
+	//printf("usleep(5000)\n");
+	//printf("time since start time: [%ld]\n", current_time);
 	pthread_mutex_lock(&philo->table->mutex_printf);
-	printf("philo created [id = %d]\n", philo->philo_id);
+	printf("[%ld] - philo created [id = %d]\n", current_time, philo->philo_id);
+	usleep(500000);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 	return (NULL);
 }
@@ -35,15 +43,12 @@ void	start_meals(void)
 	// array de structs
 	philos = *static_philo_struct();
 	table = *static_args_struct();
-//	printf("test 0\n");
 	i = 0;
 	while (i < table->num_philos)
 	{
 		pthread_create(&table->threads[i], NULL, &meal_routine, &philos[i]);
-//		printf("hi\n");
 		i++;
 	}
-	printf("hi\n");
 	i = 0;
 	while (i < table->num_philos)
 	{
@@ -61,7 +66,6 @@ int	main(int ac, char **av)
 		return (error_program_use());
 	init_args_struct(ac, av);
 	init_philos_struct(av);
-	printf("time of the day in milliseconds stored i: [%ld]\n", timestamp_in_ms());
 	start_meals();
 	return (0);
 }
