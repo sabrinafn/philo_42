@@ -34,6 +34,7 @@ typedef struct s_table
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				max_times_to_eat;
+	long int			start_time;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
@@ -54,5 +55,6 @@ t_table				*init_table(int ac, char **av);
 t_philo				*init_philos(int num_philos);
 void				init_args_struct(int ac, char **av);
 void				init_philos_struct(char **av);
+long int	timestamp_in_ms(void);
 
 #endif

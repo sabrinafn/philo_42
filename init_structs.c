@@ -46,6 +46,20 @@ pthread_mutex_t	*init_forks(int num)
 	return (forks);
 }
 
+// function that returns the time passing?
+// it should start at 0 and then it will increase everytime it is called
+long int	timestamp_in_ms(void)
+{
+	struct timeval	current_time;
+	long int	seconds;
+	long int	micro_seconds;
+
+	gettimeofday(&current_time, NULL);
+	seconds = current_time.tv_sec * 1000;
+	micro_seconds = current_time.tv_usec / 1000;
+	return (seconds + micro_seconds);
+}
+
 // function to initialise structure of arguments received from the command line
 // it also initialises threads and forks in the same structure
 t_table	*init_table(int ac, char **av)
@@ -62,6 +76,7 @@ t_table	*init_table(int ac, char **av)
 	args_struct->time_to_die = ft_atoi(av[2]);
 	args_struct->time_to_eat = ft_atoi(av[3]);
 	args_struct->time_to_sleep = ft_atoi(av[4]);
+	args_struct->start_time = timestamp_in_ms();
 	// init threads and forks based on number of philos
 	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	args_struct->forks = init_forks(ft_atoi(av[1]));
