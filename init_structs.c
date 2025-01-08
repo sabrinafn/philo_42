@@ -52,7 +52,7 @@ t_table	*init_table(int ac, char **av)
 {
 	t_table	*args_struct;
 
-	args_struct = malloc(sizeof(t_table *));
+	args_struct = malloc(sizeof(t_table));
 	if (!args_struct)
 	{
 		printf("malloc error args_struct\n");

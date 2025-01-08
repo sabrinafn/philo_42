@@ -13,11 +13,11 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <pthread.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <sys/time.h>
-# include <unistd.h>
+# include <pthread.h> // pthread_create, pthread_join, pthread_mutex
+# include <stdio.h> // printf
+# include <stdlib.h> // malloc
+# include <sys/time.h> // gettimeofday
+# include <unistd.h> // 
 
 typedef struct s_philo
 {

@@ -20,12 +20,8 @@ void	*meal_routine(void *var)
 
 	philo = (t_philo *)var;
 
-	//create mutex for printf
-	//init mutex in function to init table
-	// reference table with philo struct
 	pthread_mutex_lock(&philo->table->mutex_printf);
-//	printf("philo created [id = %d]\n", philo->philo_id);
-//	usleep(10000);
+	printf("philo created [id = %d]\n", philo->philo_id);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 	return (NULL);
 }
@@ -57,12 +53,26 @@ void	start_meals(void)
 	pthread_mutex_destroy(&table->mutex_printf);
 }
 
+// function that returns the time passing?
+// it should start at 0 and then it will increase everytime it is called
+long int	timestamp_in_ms(void)
+{
+	struct timeval	current_time;
+	long int	seconds;
+
+	gettimeofday(&current_time, NULL);
+	seconds = current_time.tv_usec;
+	return (seconds);
+}
+
 int	main(int ac, char **av)
 {
 	if (ac != 5 && ac != 6)
 		return (error_program_use());
 	if (!is_valid_input(av))
 		return (error_program_use());
+	//printf("time of the day: seconds: [%ld]\nmicroseconds: [%ld]\n", current_time.tv_sec, current_time.tv_usec);
+	printf("time of the day: seconds: [%ld]\n", timestamp_in_ms());
 	init_args_struct(ac, av);
 	init_philos_struct(av);
 	start_meals();
