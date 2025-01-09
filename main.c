@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:00:59 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/07 15:01:00 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:09:17 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@ void	*meal_routine(void *var)
 	philo = (t_philo *)var;
 	start_time = philo->table->start_time;
 	current_time = timestamp_in_ms() - start_time;
-	//printf("start time in milliseconds: [%ld]\n", start_time);
-	//usleep(5000);
-	//printf("usleep(5000)\n");
-	//printf("time since start time: [%ld]\n", current_time);
+	// printf("start time in milliseconds: [%ld]\n", start_time);
+	// usleep(5000);
+	// printf("usleep(5000)\n");
+	// printf("time since start time: [%ld]\n", current_time);
 	pthread_mutex_lock(&philo->table->mutex_printf);
 	printf("[%ld] - philo created [id = %d]\n", current_time, philo->philo_id);
 	usleep(500000);

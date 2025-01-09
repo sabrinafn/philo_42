@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:01:17 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/07 15:01:19 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:09:28 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ pthread_mutex_t	*init_forks(int num)
 long int	timestamp_in_ms(void)
 {
 	struct timeval	current_time;
-	long int	seconds;
-	long int	micro_seconds;
+	long int		seconds;
+	long int		micro_seconds;
 
 	gettimeofday(&current_time, NULL);
 	seconds = current_time.tv_sec * 1000;

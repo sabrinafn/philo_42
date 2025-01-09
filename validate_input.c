@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:01:10 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/07 15:01:12 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:09:42 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,10 @@ int	is_integer(char **args)
 
 	i = 1;
 	j = 0;
-	while (args[i])
+	while (args[i] != NULL)
 	{
-		while (args[i][j])
+		j = 0;
+		while (args[i][j] != '\0')
 		{
 			if (!ft_isdigit(args[i][j]))
 				return (0);
@@ -98,10 +99,19 @@ int	min_philo_quantity(char *philos)
 int	is_valid_input(char **args)
 {
 	if (!is_integer(args))
+	{
+		printf("!is_integer\n");
 		return (0);
+	}
 	if (!is_positive(args))
+	{
+		printf("!is_positive\n");
 		return (0);
+	}
 	if (!min_philo_quantity(args[1]))
+	{
+		printf("!min_philo_quantity\n");
 		return (0);
+	}
 	return (1);
 }
