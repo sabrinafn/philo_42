@@ -78,15 +78,16 @@ void	*meal_routine(void *var)
 {
 	t_philo		*philo;
 	long int	start_time;
-	long int	current_time;
 
 	philo = (t_philo *)var;
 	start_time = philo->table->start_time;
-	current_time = timestamp_in_ms() - start_time;
-	take_forks(philo);
-	eating(philo);
-	sleeping(philo);
-	thinking(philo);
+	while (1)
+	{
+		take_forks(philo);
+		eating(philo);
+		sleeping(philo);
+		thinking(philo);
+	}
 	return (NULL);
 }
 
