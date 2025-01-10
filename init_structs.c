@@ -86,6 +86,11 @@ t_table	*init_table(int ac, char **av)
 		printf("mutex init failed\n");
 		return (NULL);
 	}
+	if (pthread_mutex_init(&args_struct->mutex_while, NULL) != 0)
+	{
+		printf("mutex init failed\n");
+		return (NULL);
+	}
 	// if there's an extra argument, then it is the number
 	// of times each philo must eat
 	if (ac == 6)

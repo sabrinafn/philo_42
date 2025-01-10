@@ -16,8 +16,8 @@ int		error_program_use(void);
 
 void	take_forks(t_philo *philo)
 {
-	long int	start_time;
-	long int	current_time;
+	long int		start_time;
+	long int		current_time;
 	pthread_mutex_t	*first;
 	pthread_mutex_t	*second;
 
@@ -53,7 +53,6 @@ void	eating(t_philo *philo)
 	printf("%ld %d is eating\n", current_time, philo->philo_id);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 	usleep(philo->table->time_to_eat);
-	
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
 }
@@ -93,13 +92,15 @@ void	*meal_routine(void *var)
 
 	philo = (t_philo *)var;
 	start_time = philo->table->start_time;
-	//while (1)
-//	{
-		//take_forks(philo);
-		eating(philo);
-		sleeping(philo);
-		thinking(philo);
-//	}
+	// while (1)
+	//{
+	// take_forks(philo);
+	pthread_mutex_lock(&philo->table->mutex_while);
+	eating(philo);
+	sleeping(philo);
+	thinking(philo);
+	pthread_mutex_unlock(&philo->table->mutex_while);
+	//}
 	return (NULL);
 }
 
