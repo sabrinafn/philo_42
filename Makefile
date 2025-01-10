@@ -1,8 +1,8 @@
 NAME := philo
 
-CC := gcc
+CC := cc
 
-FLAGS := -pthread -Wall -Wextra -Werror
+FLAGS := -pthread -g -Wall -Wextra -Werror
 
 CFILES := main.c validate_input.c init_structs.c
 

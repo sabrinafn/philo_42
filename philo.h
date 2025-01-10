@@ -34,7 +34,8 @@ typedef struct s_table
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				max_times_to_eat;
-	long int			start_time;
+	long int		start_time;
+//	int				last_meal;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;

@@ -77,6 +77,7 @@ t_table	*init_table(int ac, char **av)
 	args_struct->time_to_eat = ft_atoi(av[3]);
 	args_struct->time_to_sleep = ft_atoi(av[4]);
 	args_struct->start_time = timestamp_in_ms();
+//	args_struct->last_meal = 0;
 	// init threads and forks based on number of philos
 	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	args_struct->forks = init_forks(ft_atoi(av[1]));

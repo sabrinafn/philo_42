@@ -18,18 +18,26 @@ void	take_forks(t_philo *philo)
 {
 	long int	start_time;
 	long int	current_time;
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
 
 	start_time = philo->table->start_time;
 	current_time = timestamp_in_ms() - start_time;
 	// testing with forks
-	pthread_mutex_lock(philo->left_fork);
-	pthread_mutex_lock(philo->right_fork);
-	pthread_mutex_lock(&philo->table->mutex_printf);
+	if (philo->philo_id % 2 == 0)
+	{
+		first = philo->right_fork;
+		second = philo->left_fork;
+	}
+	else
+	{
+		first = philo->left_fork;
+		second = philo->right_fork;
+	}
+	pthread_mutex_lock(first);
 	printf("%ld %d has taken a fork\n", current_time, philo->philo_id);
+	pthread_mutex_lock(second);
 	printf("%ld %d has taken a fork\n", current_time, philo->philo_id);
-	pthread_mutex_unlock(&philo->table->mutex_printf);
-	pthread_mutex_unlock(philo->left_fork);
-	pthread_mutex_unlock(philo->right_fork);
 }
 
 void	eating(t_philo *philo)
@@ -39,11 +47,15 @@ void	eating(t_philo *philo)
 
 	start_time = philo->table->start_time;
 	// testing mutex with first printf EATING
+	take_forks(philo);
 	pthread_mutex_lock(&philo->table->mutex_printf);
 	current_time = timestamp_in_ms() - start_time;
 	printf("%ld %d is eating\n", current_time, philo->philo_id);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 	usleep(philo->table->time_to_eat);
+	
+	pthread_mutex_unlock(philo->left_fork);
+	pthread_mutex_unlock(philo->right_fork);
 }
 
 void	sleeping(t_philo *philo)
@@ -81,13 +93,13 @@ void	*meal_routine(void *var)
 
 	philo = (t_philo *)var;
 	start_time = philo->table->start_time;
-	while (1)
-	{
-		take_forks(philo);
+	//while (1)
+//	{
+		//take_forks(philo);
 		eating(philo);
 		sleeping(philo);
 		thinking(philo);
-	}
+//	}
 	return (NULL);
 }
 
