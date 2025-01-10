@@ -77,7 +77,6 @@ t_table	*init_table(int ac, char **av)
 	args_struct->time_to_eat = ft_atoi(av[3]);
 	args_struct->time_to_sleep = ft_atoi(av[4]);
 	args_struct->start_time = timestamp_in_ms();
-//	args_struct->last_meal = 0;
 	// init threads and forks based on number of philos
 	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	args_struct->forks = init_forks(ft_atoi(av[1]));
@@ -111,13 +110,14 @@ t_philo	*init_philos(int num_philos)
 	args_struct = *static_args_struct();
 	while (i < num_philos)
 	{
-		philos[i].philo_id = i;
+		philos[i].philo_id = i + 1;
 		// reference the forks malloced in table structure
 		// select which forks belong to each philo
 		philos[i].left_fork = &args_struct->forks[i];
 		// (i + 1) % num_philos, it will give the value to wrap around
 		// number of philos
 		philos[i].right_fork = &args_struct->forks[(i + 1) % num_philos];
+		philos[i].last_meal_time = 0;
 		philos[i].table = args_struct;
 		i++;
 	}
