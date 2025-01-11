@@ -51,10 +51,13 @@ void	eating(t_philo *philo)
 	pthread_mutex_lock(&philo->table->mutex_printf);
 	current_time = timestamp_in_ms() - start_time;
 	printf("%ld %d is eating\n", current_time, philo->philo_id);
+
+	// updating last_meal_time variable
+	// philo->last_meal_time = current_time;
+	
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 	usleep(philo->table->time_to_eat);
-	philo->last_meal_time = current_time;
-	printf("philo->last_meal = %d\n", philo->last_meal_time);
+	//printf("philo->last_meal = %d\n", philo->last_meal_time);
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
 }
@@ -98,8 +101,8 @@ void	die(t_philo *philo)
 	printf("%ld %d died\n", current_time, philo->philo_id);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 	usleep(philo->table->time_to_sleep);
-}*/
-
+}
+*/
 void	*meal_routine(void *var)
 {
 	t_philo		*philo;
@@ -107,32 +110,18 @@ void	*meal_routine(void *var)
 
 	philo = (t_philo *)var;
 	start_time = philo->table->start_time;
-	while (1)
+	int	i = 0;
+	while (i < 5)
 	{
 		// take_forks(philo);
-		pthread_mutex_lock(&philo->table->mutex_while);
+		//pthread_mutex_lock(&philo->table->mutex_while);
 		eating(philo);
 		sleeping(philo);
 		thinking(philo);
-		pthread_mutex_unlock(&philo->table->mutex_while);
+		i++;
+		//pthread_mutex_unlock(&philo->table->mutex_while);
 	}
 	return (NULL);
-}
-
-void	track_last_meal_time(t_philo *philo)
-{
-	long int	current_time;
-
-	//mutex for the last meal time variable
-	//so each philo has its own mutex for the variable last meal time
-	(void)philo;
-	current_time = timestamp_in_ms();
-	while (1)
-	{
-		//if (current_time - philo->last_meal_time > philo->table->time_to_die)
-		if (current_time == 100)
-			printf("******current time = %ld\n", current_time);
-	}
 }
 
 void	start_meals(void)
@@ -150,7 +139,9 @@ void	start_meals(void)
 		pthread_create(&table->threads[i], NULL, &meal_routine, &philo[i]);
 		i++;
 	}
-	track_last_meal_time(philo);
+	// create a function to track last meal time to calculate:
+	// timestamp_in_ms() - last_meal_time > time_to_die
+	sleep(3);
 	i = 0;
 	while (i < table->num_philos)
 	{
@@ -158,6 +149,7 @@ void	start_meals(void)
 		i++;
 	}
 	pthread_mutex_destroy(&table->mutex_printf);
+	pthread_mutex_destroy(&table->mutex_while);
 }
 
 int	main(int ac, char **av)

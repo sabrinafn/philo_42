@@ -18,6 +18,7 @@
 # include <stdlib.h> // malloc
 # include <sys/time.h> // gettimeofday
 # include <unistd.h> // 
+# include <stdbool.h> // bool var
 
 typedef struct s_philo
 {
@@ -25,6 +26,8 @@ typedef struct s_philo
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	int				last_meal_time;
+	bool			died;
+	pthread_mutex_t	mutex_died;
 	struct s_table	*table;
 }					t_philo;
 

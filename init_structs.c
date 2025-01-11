@@ -119,6 +119,12 @@ t_philo	*init_philos(int num_philos)
 		philos[i].right_fork = &args_struct->forks[(i + 1) % num_philos];
 		philos[i].last_meal_time = 0;
 		philos[i].table = args_struct;
+		philos[i].died = false;
+		if (pthread_mutex_init(&philos[i].mutex_died, NULL) != 0)
+		{
+			printf("mutex init failed\n");
+			return (NULL);
+		}
 		i++;
 	}
 	return (philos);
