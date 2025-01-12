@@ -43,6 +43,7 @@ typedef struct s_table
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
 	pthread_mutex_t	mutex_while;
+	pthread_mutex_t	mutex_time;
 	struct s_philo	*philos;
 }					t_table;
 

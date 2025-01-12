@@ -14,15 +14,19 @@
 
 int		error_program_use(void);
 
+void	mutex_printf()
+
 void	take_forks(t_philo *philo)
 {
 	long int		start_time;
 	long int		current_time;
-	pthread_mutex_t	*first;
-	pthread_mutex_t	*second;
+	pthread_mutex_t		*first;
+	pthread_mutex_t		*second;
 
 	start_time = philo->table->start_time;
+	pthread_mutex_lock(&philo->table->mutex_time);
 	current_time = timestamp_in_ms() - start_time;
+	pthread_mutex_unlock(&philo->table->mutex_time);
 	// testing with forks
 	if (philo->philo_id % 2 == 0)
 	{
@@ -106,10 +110,10 @@ void	die(t_philo *philo)
 void	*meal_routine(void *var)
 {
 	t_philo		*philo;
-	long int	start_time;
+	//long int	start_time;
 
 	philo = (t_philo *)var;
-	start_time = philo->table->start_time;
+	//start_time = philo->table->start_time;
 	int	i = 0;
 	while (i < 5)
 	{
