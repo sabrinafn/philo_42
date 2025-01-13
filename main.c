@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:00:59 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/09 17:38:27 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/13 13:36:44 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ int		error_program_use(void);
 
 void	mutex_printf(t_philo *philo, char *action)
 {
-	long int		start_time;
-	long int		current_time;
-	
+	long int	start_time;
+	long int	current_time;
+
 	pthread_mutex_lock(&philo->table->mutex_printf);
 	start_time = philo->table->start_time;
 	current_time = timestamp_in_ms() - start_time;
@@ -27,45 +27,35 @@ void	mutex_printf(t_philo *philo, char *action)
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 }
 
-void	take_forks(t_philo *philo)
+void	take_forks_and_eat(t_philo *philo)
 {
-	long int		start_time;
-	long int		current_time;
-	pthread_mutex_t		*first;
-	pthread_mutex_t		*second;
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
 
-	start_time = philo->table->start_time;
-	current_time = timestamp_in_ms() - start_time;
-	// testing with forks
-	if (philo->philo_id % 2 == 0)
+	if ((philo->philo_id - 1) % 2 == 0)
 	{
 		first = philo->left_fork;
 		second = philo->right_fork;
 	}
 	else
 	{
-		second = philo->right_fork;
-		first = philo->left_fork;
+		first = philo->right_fork;
+		second = philo->left_fork;
 	}
-	printf("hello\n");
+	pthread_mutex_lock(&philo->table->mutex_while);
 	pthread_mutex_lock(first);
-	mutex_printf(philo, "has taken a fork");
+	mutex_printf(philo, "has taken a LEFT fork");
 	pthread_mutex_lock(second);
-	mutex_printf(philo, "has taken a fork");
-	printf("hi\n");
-}
-
-void	eating(t_philo *philo)
-{
-	take_forks(philo);
+	mutex_printf(philo, "has taken a RIGHT fork");
 	mutex_printf(philo, "is eating");
 	usleep(philo->table->time_to_eat);
-	pthread_mutex_unlock(philo->left_fork);
-	pthread_mutex_unlock(philo->right_fork);
+	pthread_mutex_unlock(first);
+	pthread_mutex_unlock(second);
+	pthread_mutex_unlock(&philo->table->mutex_while);
 }
 
 void	sleeping(t_philo *philo)
-	{
+{
 	mutex_printf(philo, "is sleeping");
 	usleep(philo->table->time_to_sleep);
 }
@@ -91,20 +81,21 @@ void	die(t_philo *philo)
 */
 void	*meal_routine(void *var)
 {
-	t_philo		*philo;
-	//long int	start_time;
+	t_philo	*philo;
+	int		i;
 
+	// long int	start_time;
 	philo = (t_philo *)var;
-	//start_time = philo->table->start_time;
-	int	i = 0;
-	while (i < 5)
+	// start_time = philo->table->start_time;
+	i = 0;
+	while (i < 3)
 	{
-		//pthread_mutex_lock(&philo->table->mutex_while);
-		eating(philo);
+		// pthread_mutex_lock(&philo->table->mutex_while);
+		take_forks_and_eat(philo);
 		sleeping(philo);
 		thinking(philo);
 		i++;
-		//pthread_mutex_unlock(&philo->table->mutex_while);
+		// pthread_mutex_unlock(&philo->table->mutex_while);
 	}
 	return (NULL);
 }
