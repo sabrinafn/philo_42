@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:00:59 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/13 13:36:44 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/13 15:29:04 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void	take_forks_and_eat(t_philo *philo)
 	pthread_mutex_t	*first;
 	pthread_mutex_t	*second;
 
+	philo->last_meal_time = timestamp_in_ms() - philo->table->start_time;
 	if ((philo->philo_id - 1) % 2 == 0)
 	{
 		first = philo->left_fork;
@@ -42,7 +43,6 @@ void	take_forks_and_eat(t_philo *philo)
 		first = philo->right_fork;
 		second = philo->left_fork;
 	}
-	pthread_mutex_lock(&philo->table->mutex_while);
 	pthread_mutex_lock(first);
 	mutex_printf(philo, "has taken a LEFT fork");
 	pthread_mutex_lock(second);
@@ -51,7 +51,8 @@ void	take_forks_and_eat(t_philo *philo)
 	usleep(philo->table->time_to_eat);
 	pthread_mutex_unlock(first);
 	pthread_mutex_unlock(second);
-	pthread_mutex_unlock(&philo->table->mutex_while);
+	philo->times_has_eaten++;
+	//philo->last_meal_time = timestamp_in_ms() - philo->table->start_time;
 }
 
 void	sleeping(t_philo *philo)
@@ -65,39 +66,37 @@ void	thinking(t_philo *philo)
 	mutex_printf(philo, "is thinking");
 	usleep(philo->table->time_to_sleep);
 }
-/*
+
 void	die(t_philo *philo)
 {
-	long int	start_time;
-	long int	current_time;
-
-	start_time = philo->table->start_time;
-	pthread_mutex_lock(&philo->table->mutex_printf);
-	current_time = timestamp_in_ms() - start_time;
-	printf("%ld %d died\n", current_time, philo->philo_id);
-	pthread_mutex_unlock(&philo->table->mutex_printf);
-	usleep(philo->table->time_to_sleep);
+	mutex_printf(philo, "has died");
+	philo->died = true;
 }
-*/
+
 void	*meal_routine(void *var)
 {
 	t_philo	*philo;
-	int		i;
 
-	// long int	start_time;
 	philo = (t_philo *)var;
-	// start_time = philo->table->start_time;
-	i = 0;
-	while (i < 3)
+	int max = philo->table->max_times_to_eat;
+	
+	while (1)
 	{
-		// pthread_mutex_lock(&philo->table->mutex_while);
+		if (philo->died)
+			break ;
+		if (philo->times_has_eaten == max)
+			break ;
 		take_forks_and_eat(philo);
 		sleeping(philo);
 		thinking(philo);
-		i++;
-		// pthread_mutex_unlock(&philo->table->mutex_while);
 	}
 	return (NULL);
+}
+
+void	track_meal_time(t_philo *philo)
+{
+	if (timestamp_in_ms() - philo->last_meal_time > philo->table->time_to_die)
+		die(philo);
 }
 
 void	start_meals(void)

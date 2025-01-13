@@ -100,7 +100,7 @@ t_table	*init_table(int ac, char **av)
 	if (ac == 6)
 		args_struct->max_times_to_eat = ft_atoi(av[5]);
 	else
-		args_struct->max_times_to_eat = -1; // idk?
+		args_struct->max_times_to_eat = -1;
 	return (args_struct);
 }
 
@@ -125,6 +125,7 @@ t_philo	*init_philos(int num_philos)
 		philos[i].last_meal_time = 0;
 		philos[i].table = args_struct;
 		philos[i].died = false;
+		philos[i].times_has_eaten = 0;
 		if (pthread_mutex_init(&philos[i].mutex_died, NULL) != 0)
 		{
 			printf("mutex init failed\n");

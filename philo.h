@@ -28,6 +28,7 @@ typedef struct s_philo
 	int				last_meal_time;
 	bool			died;
 	pthread_mutex_t	mutex_died;
+	int				times_has_eaten;
 	struct s_table	*table;
 }					t_philo;
 
