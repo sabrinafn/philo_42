@@ -25,9 +25,8 @@ typedef struct s_philo
 	int				philo_id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	int				last_meal_time;
-	bool			died;
-	pthread_mutex_t	mutex_died;
+	long int				last_meal_time;
+	pthread_mutex_t	mutex_last_meal;
 	int				times_has_eaten;
 	struct s_table	*table;
 }					t_philo;
@@ -40,11 +39,11 @@ typedef struct s_table
 	int				time_to_sleep;
 	int				max_times_to_eat;
 	long int		start_time;
+	bool			died;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
-	pthread_mutex_t	mutex_while;
-	pthread_mutex_t	mutex_time;
+	pthread_mutex_t	mutex_died;
 	struct s_philo	*philos;
 }					t_table;
 

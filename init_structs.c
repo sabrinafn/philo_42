@@ -77,6 +77,7 @@ t_table	*init_table(int ac, char **av)
 	args_struct->time_to_eat = ft_atoi(av[3]);
 	args_struct->time_to_sleep = ft_atoi(av[4]);
 	args_struct->start_time = timestamp_in_ms();
+	args_struct->died = false;
 	// init threads and forks based on number of philos
 	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	args_struct->forks = init_forks(ft_atoi(av[1]));
@@ -85,18 +86,13 @@ t_table	*init_table(int ac, char **av)
 		printf("mutex init failed\n");
 		return (NULL);
 	}
-	if (pthread_mutex_init(&args_struct->mutex_while, NULL) != 0)
-	{
-		printf("mutex init failed\n");
-		return (NULL);
-	}
-	if (pthread_mutex_init(&args_struct->mutex_time, NULL) != 0)
+	if (pthread_mutex_init(&args_struct->mutex_died, NULL) != 0)
 	{
 		printf("mutex init failed\n");
 		return (NULL);
 	}
 	// if there's an extra argument, then it is the number
-	// of times each philo must eat
+	// of times each philo must eat:
 	if (ac == 6)
 		args_struct->max_times_to_eat = ft_atoi(av[5]);
 	else
@@ -122,11 +118,10 @@ t_philo	*init_philos(int num_philos)
 		// (i + 1) % num_philos, it will give the value to wrap around
 		// number of philos
 		philos[i].right_fork = &args_struct->forks[(i + 1) % num_philos];
-		philos[i].last_meal_time = 0;
+		philos[i].last_meal_time = timestamp_in_ms();
 		philos[i].table = args_struct;
-		philos[i].died = false;
 		philos[i].times_has_eaten = 0;
-		if (pthread_mutex_init(&philos[i].mutex_died, NULL) != 0)
+		if (pthread_mutex_init(&philos[i].mutex_last_meal, NULL) != 0)
 		{
 			printf("mutex init failed\n");
 			return (NULL);
