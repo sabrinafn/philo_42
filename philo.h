@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:01:26 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/07 15:01:28 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/14 19:23:36 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,18 @@ typedef struct s_philo
 typedef struct s_table
 {
 	int				num_philos;
-	long int				time_to_die;
-	long int				time_to_eat;
-	long int				time_to_sleep;
+	long int		time_to_die;
+	long int		time_to_eat;
+	long int		time_to_sleep;
 	int				max_times_to_eat;
 	long int		start_time;
 	bool			died;
+	int				full_philos;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
 	pthread_mutex_t	mutex_died;
+	pthread_mutex_t	mutex_full_philos;
 	struct s_philo	*philos;
 }					t_table;
 

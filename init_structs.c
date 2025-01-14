@@ -78,6 +78,7 @@ t_table	*init_table(int ac, char **av)
 	args_struct->time_to_sleep = ft_atoi(av[4]);
 	args_struct->start_time = timestamp_in_ms();
 	args_struct->died = false;
+	args_struct->full_philos = 0;
 	// init threads and forks based on number of philos
 	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	args_struct->forks = init_forks(ft_atoi(av[1]));
@@ -87,6 +88,11 @@ t_table	*init_table(int ac, char **av)
 		return (NULL);
 	}
 	if (pthread_mutex_init(&args_struct->mutex_died, NULL) != 0)
+	{
+		printf("mutex init failed\n");
+		return (NULL);
+	}
+	if (pthread_mutex_init(&args_struct->mutex_full_philos, NULL) != 0)
 	{
 		printf("mutex init failed\n");
 		return (NULL);
