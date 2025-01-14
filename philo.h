@@ -13,19 +13,19 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <pthread.h> // pthread_create, pthread_join, pthread_mutex
-# include <stdio.h> // printf
-# include <stdlib.h> // malloc
+# include <pthread.h>  // pthread_create, pthread_join, pthread_mutex
+# include <stdbool.h>  // bool var
+# include <stdio.h>    // printf
+# include <stdlib.h>   // malloc
 # include <sys/time.h> // gettimeofday
-# include <unistd.h> // 
-# include <stdbool.h> // bool var
+# include <unistd.h>   //
 
 typedef struct s_philo
 {
 	int				philo_id;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	long int				last_meal_time;
+	long int		last_meal_time;
 	pthread_mutex_t	mutex_last_meal;
 	int				times_has_eaten;
 	struct s_table	*table;
@@ -34,9 +34,9 @@ typedef struct s_philo
 typedef struct s_table
 {
 	int				num_philos;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
+	long int				time_to_die;
+	long int				time_to_eat;
+	long int				time_to_sleep;
 	int				max_times_to_eat;
 	long int		start_time;
 	bool			died;
@@ -61,6 +61,6 @@ t_table				*init_table(int ac, char **av);
 t_philo				*init_philos(int num_philos);
 void				init_args_struct(int ac, char **av);
 void				init_philos_struct(char **av);
-long int	timestamp_in_ms(void);
+long int			timestamp_in_ms(void);
 
 #endif

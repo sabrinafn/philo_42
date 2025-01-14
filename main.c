@@ -43,12 +43,12 @@ void	mutex_printf(t_philo *philo, char *action)
 	start_time = philo->table->start_time;
 	current_time = timestamp_in_ms() - start_time;
 //	pthread_mutex_lock(&philo->table->mutex_died);
-//	if (philo->table->died == false)
-//	{
+	if (philo->table->died == false)
+	{
 		printf("%ld %d ", current_time, philo->philo_id);
 		printf("%s\n", action);
-//	}
-//	pthread_mutex_unlock(&philo->table->mutex_died);
+	}
+	pthread_mutex_unlock(&philo->table->mutex_died);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 }
 
@@ -76,12 +76,13 @@ void	take_forks_and_eat(t_philo *philo)
 	// updates to a new value whenever philo eats
 	pthread_mutex_lock(&philo->mutex_last_meal);
 	philo->last_meal_time = timestamp_in_ms();
+	// increments +1 whenever philo eats
+	if (philo->table->max_times_to_eat != -1)
+		philo->times_has_eaten++;
 	pthread_mutex_unlock(&philo->mutex_last_meal);
 	usleep(philo->table->time_to_eat * 1000);
 	pthread_mutex_unlock(first);
 	pthread_mutex_unlock(second);
-	// increments +1 whenever philo eats
-	philo->times_has_eaten++;
 }
 
 void	sleeping(t_philo *philo)
@@ -114,9 +115,12 @@ bool	end_routine(t_philo *philo)
 		pthread_mutex_unlock(&philo->table->mutex_died);
 		return (true);
 	}
-	pthread_mutex_unlock(&philo->table->mutex_died);
-	if (philo->times_has_eaten >= max)
+	if (philo->table->max_times_to_eat != -1 && philo->times_has_eaten >= max)
+	{
+		pthread_mutex_unlock(&philo->table->mutex_died);
 		return (true);
+	}
+	pthread_mutex_unlock(&philo->table->mutex_died);
 	return (false);
 }
 
@@ -125,11 +129,15 @@ void	*meal_routine(void *var)
 	t_philo	*philo;
 
 	philo = (t_philo *)var;
-	while (!end_routine(philo))
+	while (end_routine(philo) == false)
 	{
 		take_forks_and_eat(philo);
 		sleeping(philo);
 		thinking(philo);
+	}
+	if (end_routine(philo) == true)
+	{
+		printf("end_routine == true\n");
 	}
 	return (NULL);
 }
@@ -153,6 +161,7 @@ void	track_meal_time(t_philo *philo)
 			pthread_mutex_unlock(&philo[i].mutex_last_meal);
 			i++;
 		}
+		usleep(1000);
 	}
 	// eaten at 5, time now is 6. time to die = 6 = passed
 	// eaten at 6, time now is 6. time to die = 6 = not passed
@@ -173,9 +182,6 @@ void	start_meals(void)
 		pthread_create(&table->threads[i], NULL, &meal_routine, &philo[i]);
 		i++;
 	}
-	// create a function to track last meal time to calculate:
-	// timestamp_in_ms() - last_meal_time > time_to_die
-	//usleep(2000);
 	track_meal_time(philo);
 	i = 0;
 	while (i < table->num_philos)
