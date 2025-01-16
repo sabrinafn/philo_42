@@ -5,7 +5,7 @@ CC := cc
 #FLAGS := -fsanitize=thread -pthread -g -Wall -Wextra -Werror
 FLAGS := -pthread -g -Wall -Wextra -Werror
 
-CFILES := main.c validate_input.c init_structs.c
+CFILES := main.c validate_input.c init_structs.c meal.c
 
 OFILES := $(CFILES:.c=.o)
 

@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:01:26 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/14 19:23:36 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/15 11:48:46 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_philo
 	pthread_mutex_t	*right_fork;
 	long int		last_meal_time;
 	pthread_mutex_t	mutex_last_meal;
+	pthread_mutex_t	mutex_times_has_eaten;
 	int				times_has_eaten;
 	struct s_table	*table;
 }					t_philo;
@@ -40,12 +41,14 @@ typedef struct s_table
 	int				max_times_to_eat;
 	long int		start_time;
 	bool			died;
+	bool			quit_table;
 	int				full_philos;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
 	pthread_mutex_t	mutex_died;
 	pthread_mutex_t	mutex_full_philos;
+	pthread_mutex_t	mutex_quit_table;
 	struct s_philo	*philos;
 }					t_table;
 
@@ -60,9 +63,12 @@ t_table				**static_args_struct(void);
 t_philo				**static_philo_struct(void);
 pthread_mutex_t		*init_forks(int num);
 t_table				*init_table(int ac, char **av);
-t_philo				*init_philos(int num_philos);
-void				init_args_struct(int ac, char **av);
-void				init_philos_struct(char **av);
+t_philo				*init_philos(int num_philos, t_table *table);
+t_table				*init_table_struct(int ac, char **av);
+t_philo				*init_philos_struct(char **av, t_table *table);
 long int			timestamp_in_ms(void);
+
+// meal file
+void				start_meals(t_philo *philo, t_table *table);
 
 #endif

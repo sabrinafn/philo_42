@@ -6,27 +6,11 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:01:17 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/09 15:09:28 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/15 14:57:16 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-// static function to handle table struct (just in case i need it).
-t_table	**static_args_struct(void)
-{
-	static t_table	*args_struct;
-
-	return (&args_struct);
-}
-
-// static function to handle philos struct (just in case i need it).
-t_philo	**static_philo_struct(void)
-{
-	static t_philo	*philos_struct;
-
-	return (&philos_struct);
-}
 
 // function to malloc forks.
 // it needs to allocate memory so it can be a variable that can
@@ -64,94 +48,78 @@ long int	timestamp_in_ms(void)
 // it also initialises threads and forks in the same structure
 t_table	*init_table(int ac, char **av)
 {
-	t_table	*args_struct;
+	t_table	*table;
 
-	args_struct = malloc(sizeof(t_table));
-	if (!args_struct)
+	table = malloc(sizeof(t_table));
+	if (!table)
 	{
 		printf("malloc error args_struct\n");
 		return (NULL);
 	}
-	args_struct->num_philos = ft_atoi(av[1]);
-	args_struct->time_to_die = ft_atoi(av[2]);
-	args_struct->time_to_eat = ft_atoi(av[3]);
-	args_struct->time_to_sleep = ft_atoi(av[4]);
-	args_struct->start_time = timestamp_in_ms();
-	args_struct->died = false;
-	args_struct->full_philos = 0;
+	table->num_philos = ft_atoi(av[1]);
+	table->time_to_die = ft_atoi(av[2]);
+	table->time_to_eat = ft_atoi(av[3]);
+	table->time_to_sleep = ft_atoi(av[4]);
+	table->start_time = timestamp_in_ms();
+	table->died = false;
+	table->full_philos = 0;
+	table->quit_table = false;
 	// init threads and forks based on number of philos
-	args_struct->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
-	args_struct->forks = init_forks(ft_atoi(av[1]));
-	if (pthread_mutex_init(&args_struct->mutex_printf, NULL) != 0)
-	{
-		printf("mutex init failed\n");
-		return (NULL);
-	}
-	if (pthread_mutex_init(&args_struct->mutex_died, NULL) != 0)
-	{
-		printf("mutex init failed\n");
-		return (NULL);
-	}
-	if (pthread_mutex_init(&args_struct->mutex_full_philos, NULL) != 0)
-	{
-		printf("mutex init failed\n");
-		return (NULL);
-	}
+	table->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
+	table->forks = init_forks(ft_atoi(av[1]));
+	pthread_mutex_init(&table->mutex_printf, NULL);
+	pthread_mutex_init(&table->mutex_died, NULL);
+	pthread_mutex_init(&table->mutex_full_philos, NULL);
+	pthread_mutex_init(&table->mutex_quit_table, NULL);
 	// if there's an extra argument, then it is the number
 	// of times each philo must eat:
 	if (ac == 6)
-		args_struct->max_times_to_eat = ft_atoi(av[5]);
+		table->max_times_to_eat = ft_atoi(av[5]);
 	else
-		args_struct->max_times_to_eat = -1;
-	return (args_struct);
+		table->max_times_to_eat = -1;
+	return (table);
 }
 
-t_philo	*init_philos(int num_philos)
+t_philo	*init_philos(int num_philos, t_table *table)
 {
 	int		i;
 	t_philo	*philos;
-	t_table	*args_struct;
 
 	i = 0;
 	philos = malloc(sizeof(t_philo) * num_philos);
-	args_struct = *static_args_struct();
 	while (i < num_philos)
 	{
 		philos[i].philo_id = i + 1;
 		// reference the forks malloced in table structure
 		// select which forks belong to each philo
-		philos[i].left_fork = &args_struct->forks[i];
+		philos[i].left_fork = &table->forks[i];
 		// (i + 1) % num_philos, it will give the value to wrap around
 		// number of philos
-		philos[i].right_fork = &args_struct->forks[(i + 1) % num_philos];
+		philos[i].right_fork = &table->forks[(i + 1) % num_philos];
 		philos[i].last_meal_time = timestamp_in_ms();
-		philos[i].table = args_struct;
+		philos[i].table = table;
 		philos[i].times_has_eaten = 0;
-		if (pthread_mutex_init(&philos[i].mutex_last_meal, NULL) != 0)
-		{
-			printf("mutex init failed\n");
-			return (NULL);
-		}
+		pthread_mutex_init(&philos[i].mutex_last_meal, NULL);
+		pthread_mutex_init(&philos[i].mutex_times_has_eaten, NULL);
 		i++;
 	}
 	return (philos);
 }
 
-void	init_args_struct(int ac, char **av)
+t_table	*init_table_struct(int ac, char **av)
 {
-	t_table *args_struct; // declaring table struct
-	args_struct = init_table(ac, av);
-	// initializing structure with arguments
-	*static_args_struct() = args_struct;
-	// store structure in static function :)
+	t_table	*table;
+
+	table = init_table(ac, av);
+	return (table);
 }
 
-void	init_philos_struct(char **av)
+t_philo	*init_philos_struct(char **av, t_table *table)
 {
-	int	num_philo;
+	int		num_philo;
+	t_philo	*philos_struct;
 
-	t_philo *philos_struct; // declaring philo struct
 	num_philo = ft_atoi(av[1]);
-	philos_struct = init_philos(num_philo);
-	*static_philo_struct() = philos_struct;
+	philos_struct = init_philos(num_philo, table);
+	return (philos_struct);
 }
