@@ -42,12 +42,10 @@ typedef struct s_table
 	long int		start_time;
 	bool			died;
 	bool			end_routine;
-	int				full_philos;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
 	pthread_mutex_t	mutex_died;
-	pthread_mutex_t	mutex_full_philos;
 	pthread_mutex_t	mutex_quit_table;
 	struct s_philo	*philos;
 }					t_table;
