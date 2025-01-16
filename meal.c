@@ -21,7 +21,7 @@ void	mutex_printf(t_philo *philo, char *action)
 
 	pthread_mutex_lock(&philo->table->mutex_printf);
 	start_time = philo->table->start_time;
-	current_time = timestamp_in_ms() - start_time;
+	current_time = ft_time() - start_time;
 	if (!philo_died(philo))
 	{
 		printf("%ld %d ", current_time, philo->philo_id);
@@ -34,10 +34,14 @@ void	update_meals(t_philo *philo)
 {
 	// updates to a new value whenever philo eats
 	pthread_mutex_lock(&philo->mutex_last_meal);
-	philo->last_meal_time = timestamp_in_ms();
+	philo->last_meal_time = ft_time();
 	// increments +1 whenever philo eats
 	if (philo->table->max_times_to_eat != -1)
+	{
 		philo->times_has_eaten++;
+		if (philo->times_has_eaten >= philo->table->max_times_to_eat)
+
+	}
 	pthread_mutex_unlock(&philo->mutex_last_meal);
 }
 
@@ -115,6 +119,9 @@ void	*meal_routine(void *var)
 	return (NULL);
 }
 
+// Philosophers don’t speak with each other.
+// Philosophers don’t know if another philosopher is about to die.
+
 void	track_routine(t_philo *philo)
 {
 	int	i;
@@ -126,7 +133,7 @@ void	track_routine(t_philo *philo)
 		while (i < philo->table->num_philos)
 		{
 			pthread_mutex_lock(&philo[i].mutex_last_meal);
-			if ((timestamp_in_ms() - philo[i].last_meal_time) > philo->table->time_to_die)
+			if ((ft_time() - philo[i].last_meal_time) > philo->table->time_to_die)
 			{
 					die(&philo[i]);
 					pthread_mutex_unlock(&philo[i].mutex_last_meal);

@@ -32,7 +32,7 @@ pthread_mutex_t	*init_forks(int num)
 
 // function that returns the time passing?
 // it should start at 0 and then it will increase everytime it is called
-long int	timestamp_in_ms(void)
+long int	ft_time(void)
 {
 	struct timeval	current_time;
 	long int		seconds;
@@ -60,7 +60,7 @@ t_table	*init_table(int ac, char **av)
 	table->time_to_die = ft_atoi(av[2]);
 	table->time_to_eat = ft_atoi(av[3]);
 	table->time_to_sleep = ft_atoi(av[4]);
-	table->start_time = timestamp_in_ms();
+	table->start_time = ft_time();
 	table->died = false;
 	table->full_philos = 0;
 	table->quit_table = false;
@@ -96,7 +96,7 @@ t_philo	*init_philos(int num_philos, t_table *table)
 		// (i + 1) % num_philos, it will give the value to wrap around
 		// number of philos
 		philos[i].right_fork = &table->forks[(i + 1) % num_philos];
-		philos[i].last_meal_time = timestamp_in_ms();
+		philos[i].last_meal_time = ft_time();
 		philos[i].table = table;
 		philos[i].times_has_eaten = 0;
 		pthread_mutex_init(&philos[i].mutex_last_meal, NULL);

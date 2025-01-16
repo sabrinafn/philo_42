@@ -66,7 +66,7 @@ t_table				*init_table(int ac, char **av);
 t_philo				*init_philos(int num_philos, t_table *table);
 t_table				*init_table_struct(int ac, char **av);
 t_philo				*init_philos_struct(char **av, t_table *table);
-long int			timestamp_in_ms(void);
+long int			ft_time(void);
 
 // meal file
 void				start_meals(t_philo *philo, t_table *table);
