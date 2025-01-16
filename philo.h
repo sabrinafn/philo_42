@@ -41,7 +41,7 @@ typedef struct s_table
 	int				max_times_to_eat;
 	long int		start_time;
 	bool			died;
-	bool			quit_table;
+	bool			end_routine;
 	int				full_philos;
 	pthread_t		*threads;
 	pthread_mutex_t	*forks;

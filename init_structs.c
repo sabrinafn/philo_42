@@ -63,7 +63,7 @@ t_table	*init_table(int ac, char **av)
 	table->start_time = ft_time();
 	table->died = false;
 	table->full_philos = 0;
-	table->quit_table = false;
+	table->end_routine = false;
 	// init threads and forks based on number of philos
 	table->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	table->forks = init_forks(ft_atoi(av[1]));

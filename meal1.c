@@ -1,18 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   new_meal.c                                         :+:      :+:    :+:   */
+/*   meal.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:00:59 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/16 14:46:31 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/15 15:09:27 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-bool	philo_died(t_philo *philo);
 
 void	mutex_printf(t_philo *philo, char *action)
 {
@@ -21,12 +19,16 @@ void	mutex_printf(t_philo *philo, char *action)
 
 	pthread_mutex_lock(&philo->table->mutex_printf);
 	start_time = philo->table->start_time;
-	current_time = ft_time() - start_time;
-	if (!philo_died(philo))
+	current_time = timestamp_in_ms() - start_time;
+	pthread_mutex_lock(&philo->table->mutex_died);
+	pthread_mutex_lock(&philo->table->mutex_quit_table);
+	if (philo->table->died == false || philo->table->quit_table == false)
 	{
 		printf("%ld %d ", current_time, philo->philo_id);
 		printf("%s\n", action);
 	}
+	pthread_mutex_unlock(&philo->table->mutex_quit_table);
+	pthread_mutex_unlock(&philo->table->mutex_died);
 	pthread_mutex_unlock(&philo->table->mutex_printf);
 }
 
@@ -34,10 +36,17 @@ void	update_meals(t_philo *philo)
 {
 	// updates to a new value whenever philo eats
 	pthread_mutex_lock(&philo->mutex_last_meal);
-	philo->last_meal_time = ft_time();
+	philo->last_meal_time = timestamp_in_ms();
 	// increments +1 whenever philo eats
 	if (philo->table->max_times_to_eat != -1)
+	{
 		philo->times_has_eaten++;
+		pthread_mutex_lock(&philo->table->mutex_full_philos);
+		if (philo->times_has_eaten == philo->table->max_times_to_eat)
+			philo->table->full_philos++;
+		// increments whenever a philo ate all the times it should
+		pthread_mutex_unlock(&philo->table->mutex_full_philos);
+	}
 	pthread_mutex_unlock(&philo->mutex_last_meal);
 }
 
@@ -99,44 +108,27 @@ bool	philo_died(t_philo *philo)
 	return (false);
 }
 
-bool	all_have_eaten(t_philo *philo)
+bool	philo_are_full(t_philo *philo)
 {
-	int	i;
-	int	counter;
-
-	i = 0;
-	counter = 0;
-	if (philo->table->max_times_to_eat == -1)
-		return (false);
-	while (i < philo->table->num_philos)
+	pthread_mutex_lock(&philo->table->mutex_full_philos);
+	if (philo->table->full_philos == philo->table->num_philos)
 	{
-		if (philo[i].times_has_eaten >= philo->table->max_times_to_eat)
-			counter++;	
-		i++;
-	}
-	if (counter == philo->table->num_philos)
-	{
+		pthread_mutex_unlock(&philo->table->mutex_full_philos);
 		return (true);
 	}
+	pthread_mutex_unlock(&philo->table->mutex_full_philos);
 	return (false);
 }
 
-void	end_routine(t_philo *philo)
+bool	philo_ate_max_times(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->table->mutex_quit_table);
-	philo->table->end_routine = true;
-	pthread_mutex_unlock(&philo->table->mutex_quit_table);
-}
-
-bool	routine_over(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->table->mutex_quit_table);
-	if (philo->table->end_routine == true)
+	pthread_mutex_lock(&philo->mutex_times_has_eaten);
+	if (philo->times_has_eaten == philo->table->max_times_to_eat)
 	{
-		pthread_mutex_unlock(&philo->table->mutex_quit_table);
+		pthread_mutex_unlock(&philo->mutex_times_has_eaten);
 		return (true);
 	}
-	pthread_mutex_unlock(&philo->table->mutex_quit_table);
+	pthread_mutex_unlock(&philo->mutex_times_has_eaten);
 	return (false);
 }
 
@@ -149,50 +141,59 @@ void	*meal_routine(void *var)
 	{
 		if (philo_died(philo))
 			break ;
-		if (routine_over(philo))
+		if (philo_ate_max_times(philo))
 			break ;
+		pthread_mutex_lock(&philo->table->mutex_quit_table);
+		if (philo->table->quit_table == true)
+		{
+			pthread_mutex_unlock(&philo->table->mutex_quit_table);
+			break ;
+		}
+		pthread_mutex_unlock(&philo->table->mutex_quit_table);
 		take_forks_and_eat(philo);
 		sleeping(philo);
+		pthread_mutex_unlock(&philo->table->mutex_quit_table);
 		thinking(philo);
 	}
 	return (NULL);
 }
 
-// Philosophers don’t speak with each other.
-// Philosophers don’t know if another philosopher is about to die.
-
-void	track_routine(t_philo *philo)
+void	track_meal_time(t_philo *philo)
 {
 	int	i;
 
-	usleep(1000);
 	while (1)
 	{
 		i = 0;
 		while (i < philo->table->num_philos)
 		{
 			pthread_mutex_lock(&philo[i].mutex_last_meal);
-			if ((ft_time() - philo[i].last_meal_time) > philo->table->time_to_die)
+			if ((timestamp_in_ms() - philo[i].last_meal_time) > philo->table->time_to_die)
 			{
-				die(&philo[i]);
-				pthread_mutex_unlock(&philo[i].mutex_last_meal);
-				return ;
-			}
-			pthread_mutex_unlock(&philo[i].mutex_last_meal);
-			pthread_mutex_lock(&philo[i].mutex_times_has_eaten);
-			if (philo[i].times_has_eaten >= philo->table->max_times_to_eat)
-			{
-				if (all_have_eaten(philo))
+				printf("timestamp_in_ms() - philo[i].last_meal_time = [%ld]\n", timestamp_in_ms() - philo[i].last_meal_time);
+				if (philo[i].times_has_eaten < philo->table->max_times_to_eat)
 				{
-					end_routine(philo);
-					pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
+					printf("timestamp_in_ms() - philo[i].last_meal_time = [%ld]\n", timestamp_in_ms() - philo[i].last_meal_time);
+					die(&philo[i]);
+					pthread_mutex_unlock(&philo[i].mutex_last_meal);
 					return ;
 				}
 			}
-			pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
+			pthread_mutex_unlock(&philo[i].mutex_last_meal);
+			if (philo_are_full(philo))
+			{
+				pthread_mutex_lock(&philo->table->mutex_quit_table);
+				philo->table->quit_table = true;
+				printf("philo->table->quit_table = [%d]\n", philo->table->quit_table);
+				pthread_mutex_unlock(&philo->table->mutex_quit_table);
+				return ;
+			}
 			i++;
 		}
+		usleep(1000);
 	}
+	// eaten at 5, time now is 6. time to die = 6 = passed
+	// eaten at 6, time now is 6. time to die = 6 = not passed
 }
 
 void	free_philos(t_philo *philo, t_table *table)
@@ -203,6 +204,8 @@ void	free_philos(t_philo *philo, t_table *table)
 	pthread_mutex_destroy(&table->mutex_printf);
 	pthread_mutex_destroy(&philo->mutex_last_meal);
 	pthread_mutex_destroy(&table->mutex_died);
+	pthread_mutex_destroy(&table->mutex_full_philos);
+	pthread_mutex_destroy(&table->mutex_quit_table);
 	i = 0;
 	while (i < table->num_philos)
 	{
@@ -243,7 +246,7 @@ void	start_meals(t_philo *philo, t_table *table)
 			pthread_create(&table->threads[i], NULL, &meal_routine, &philo[i]);
 			i++;
 		}
-		track_routine(philo);
+		track_meal_time(philo);
 	}
 	i = 0;
 	while (i < table->num_philos)
