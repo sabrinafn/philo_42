@@ -6,7 +6,7 @@
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:01:17 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/15 14:57:16 by sabrifer         ###   ########.fr       */
+/*   Updated: 2025/01/17 15:49:24 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ long int	ft_time(void)
 	return (seconds + micro_seconds);
 }
 
-t_table	*init_table(int ac, char **av)
+t_table	*init_table_struct(int ac, char **av)
 {
 	t_table	*table;
 
@@ -55,14 +55,12 @@ t_table	*init_table(int ac, char **av)
 	table->time_to_sleep = ft_atoi(av[4]);
 	table->start_time = ft_time();
 	table->died = false;
-	table->full_philos = 0;
 	table->end_routine = false;
 	table->threads = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
 	table->forks = init_forks(ft_atoi(av[1]));
 	pthread_mutex_init(&table->mutex_printf, NULL);
 	pthread_mutex_init(&table->mutex_died, NULL);
-	pthread_mutex_init(&table->mutex_full_philos, NULL);
-	pthread_mutex_init(&table->mutex_quit_table, NULL);
+	pthread_mutex_init(&table->mutex_end_routine, NULL);
 	if (ac == 6)
 		table->max_times_to_eat = ft_atoi(av[5]);
 	else
@@ -70,12 +68,14 @@ t_table	*init_table(int ac, char **av)
 	return (table);
 }
 
-t_philo	*init_philos(int num_philos, t_table *table)
+t_philo	*init_philos_struct(char **av, t_table *table)
 {
 	int		i;
+	int		num_philos;
 	t_philo	*philos;
 
 	i = 0;
+	num_philos = ft_atoi(av[1]);
 	philos = malloc(sizeof(t_philo) * num_philos);
 	while (i < num_philos)
 	{
@@ -90,22 +90,4 @@ t_philo	*init_philos(int num_philos, t_table *table)
 		i++;
 	}
 	return (philos);
-}
-
-t_table	*init_table_struct(int ac, char **av)
-{
-	t_table	*table;
-
-	table = init_table(ac, av);
-	return (table);
-}
-
-t_philo	*init_philos_struct(char **av, t_table *table)
-{
-	int		num_philo;
-	t_philo	*philos_struct;
-
-	num_philo = ft_atoi(av[1]);
-	philos_struct = init_philos(num_philo, table);
-	return (philos_struct);
 }

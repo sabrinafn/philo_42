@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   new_meal.c                                         :+:      :+:    :+:   */
+/*   meal.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sabrifer <sabrifer@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/07 15:00:59 by sabrifer          #+#    #+#             */
-/*   Updated: 2025/01/16 14:46:31 by sabrifer         ###   ########.fr       */
+/*   Created: 2025/01/17 15:40:08 by sabrifer          #+#    #+#             */
+/*   Updated: 2025/01/17 15:40:23 by sabrifer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,8 @@ void	mutex_printf(t_philo *philo, char *action)
 
 void	update_meals(t_philo *philo)
 {
-	// updates to a new value whenever philo eats
 	pthread_mutex_lock(&philo->mutex_last_meal);
 	philo->last_meal_time = ft_time();
-	// increments +1 whenever philo eats
 	if (philo->table->max_times_to_eat != -1)
 		philo->times_has_eaten++;
 	pthread_mutex_unlock(&philo->mutex_last_meal);
@@ -79,14 +77,6 @@ void	thinking(t_philo *philo)
 	usleep(1000);
 }
 
-void	die(t_philo *philo)
-{
-	mutex_printf(philo, "has died");
-	pthread_mutex_lock(&philo->table->mutex_died);
-	philo->table->died = true;
-	pthread_mutex_unlock(&philo->table->mutex_died);
-}
-
 bool	philo_died(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->table->mutex_died);
@@ -99,44 +89,15 @@ bool	philo_died(t_philo *philo)
 	return (false);
 }
 
-bool	all_have_eaten(t_philo *philo)
-{
-	int	i;
-	int	counter;
-
-	i = 0;
-	counter = 0;
-	if (philo->table->max_times_to_eat == -1)
-		return (false);
-	while (i < philo->table->num_philos)
-	{
-		if (philo[i].times_has_eaten >= philo->table->max_times_to_eat)
-			counter++;	
-		i++;
-	}
-	if (counter == philo->table->num_philos)
-	{
-		return (true);
-	}
-	return (false);
-}
-
-void	end_routine(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->table->mutex_quit_table);
-	philo->table->end_routine = true;
-	pthread_mutex_unlock(&philo->table->mutex_quit_table);
-}
-
 bool	routine_over(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->table->mutex_quit_table);
+	pthread_mutex_lock(&philo->table->mutex_end_routine);
 	if (philo->table->end_routine == true)
 	{
-		pthread_mutex_unlock(&philo->table->mutex_quit_table);
+		pthread_mutex_unlock(&philo->table->mutex_end_routine);
 		return (true);
 	}
-	pthread_mutex_unlock(&philo->table->mutex_quit_table);
+	pthread_mutex_unlock(&philo->table->mutex_end_routine);
 	return (false);
 }
 
@@ -156,43 +117,6 @@ void	*meal_routine(void *var)
 		thinking(philo);
 	}
 	return (NULL);
-}
-
-// Philosophers don’t speak with each other.
-// Philosophers don’t know if another philosopher is about to die.
-
-void	track_routine(t_philo *philo)
-{
-	int	i;
-
-	usleep(1000);
-	while (1)
-	{
-		i = 0;
-		while (i < philo->table->num_philos)
-		{
-			pthread_mutex_lock(&philo[i].mutex_last_meal);
-			if ((ft_time() - philo[i].last_meal_time) > philo->table->time_to_die)
-			{
-				die(&philo[i]);
-				pthread_mutex_unlock(&philo[i].mutex_last_meal);
-				return ;
-			}
-			pthread_mutex_unlock(&philo[i].mutex_last_meal);
-			pthread_mutex_lock(&philo[i].mutex_times_has_eaten);
-			if (philo[i].times_has_eaten >= philo->table->max_times_to_eat)
-			{
-				if (all_have_eaten(philo))
-				{
-					end_routine(philo);
-					pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
-					return ;
-				}
-			}
-			pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
-			i++;
-		}
-	}
 }
 
 void	free_philos(t_philo *philo, t_table *table)
@@ -224,7 +148,6 @@ void	*one_philo_routine(void *var)
 	mutex_printf(philo, "has taken a fork (1)");
 	pthread_mutex_unlock(philo->left_fork);
 	mutex_printf(philo, "has died");
-	
 	return (NULL);
 }
 
@@ -232,7 +155,6 @@ void	start_meals(t_philo *philo, t_table *table)
 {
 	int	i;
 
-	// array de structs
 	i = 0;
 	if (philo->table->num_philos == 1)
 		pthread_create(&table->threads[i], NULL, &one_philo_routine, &philo[i]);

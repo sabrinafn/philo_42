@@ -46,7 +46,7 @@ typedef struct s_table
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mutex_printf;
 	pthread_mutex_t	mutex_died;
-	pthread_mutex_t	mutex_quit_table;
+	pthread_mutex_t	mutex_end_routine;
 	struct s_philo	*philos;
 }					t_table;
 
@@ -66,7 +66,15 @@ t_table				*init_table_struct(int ac, char **av);
 t_philo				*init_philos_struct(char **av, t_table *table);
 long int			ft_time(void);
 
+// tracker.c
+void	die(t_philo *philo);
+bool	all_have_eaten(t_philo *philo);
+bool	track_death(t_philo *philo);
+bool	track_meals(t_philo *philo);
+void	track_routine(t_philo *philo);
+
 // meal file
 void				start_meals(t_philo *philo, t_table *table);
+
 
 #endif
