@@ -45,10 +45,7 @@ t_table	*init_table_struct(int ac, char **av)
 
 	table = malloc(sizeof(t_table));
 	if (!table)
-	{
-		printf("malloc error args_struct\n");
 		return (NULL);
-	}
 	table->num_philos = ft_atoi(av[1]);
 	table->time_to_die = ft_atoi(av[2]);
 	table->time_to_eat = ft_atoi(av[3]);

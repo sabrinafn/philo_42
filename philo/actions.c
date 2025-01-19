@@ -16,7 +16,6 @@ void	update_meals(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->mutex_last_meal);
 	philo->last_meal_time = ft_time();
-
 	if (philo->table->max_times_to_eat != -1)
 	{
 		pthread_mutex_lock(&philo->mutex_times_has_eaten);

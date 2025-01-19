@@ -2,8 +2,9 @@ NAME := philo
 
 CC := cc
 
+# To compile with thread sanitizer:
 #FLAGS := -fsanitize=thread -pthread -g -Wall -Wextra -Werror
-FLAGS := -Wunused-variable -pthread -g -Wall -Wextra -Werror
+FLAGS := -pthread -Wall -Wextra -Werror
 
 CFILES := main.c validate_input.c init_structs.c meal.c actions.c tracker.c routine.c
 

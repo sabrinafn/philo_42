@@ -31,8 +31,10 @@ bool	all_have_eaten(t_philo *philo)
 		return (false);
 	while (i < philo->table->num_philos)
 	{
+		pthread_mutex_lock(&philo[i].mutex_times_has_eaten);
 		if (philo[i].times_has_eaten >= philo->table->max_times_to_eat)
 			counter++;
+		pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
 		i++;
 	}
 	if (counter == philo->table->num_philos)
@@ -62,25 +64,12 @@ bool	track_death(t_philo *philo)
 
 bool	track_meals(t_philo *philo)
 {
-	int	i;
-
-	i = 0;
-	while (i < philo->table->num_philos)
+	if (all_have_eaten(philo))
 	{
-		pthread_mutex_lock(&philo[i].mutex_times_has_eaten);
-		if (philo[i].times_has_eaten >= philo->table->max_times_to_eat)
-		{
-			if (all_have_eaten(philo))
-			{
-				pthread_mutex_lock(&philo->table->mutex_end_routine);
-				philo->table->end_routine = true;
-				pthread_mutex_unlock(&philo->table->mutex_end_routine);
-				pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
-				return (true);
-			}
-		}
-		pthread_mutex_unlock(&philo[i].mutex_times_has_eaten);
-		i++;
+		pthread_mutex_lock(&philo->table->mutex_end_routine);
+		philo->table->end_routine = true;
+		pthread_mutex_unlock(&philo->table->mutex_end_routine);
+		return (true);
 	}
 	return (false);
 }
